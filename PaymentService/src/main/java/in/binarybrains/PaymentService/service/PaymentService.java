@@ -6,10 +6,12 @@ import in.binarybrains.PaymentService.model.OrderTransaction;
 import in.binarybrains.PaymentService.model.User;
 import in.binarybrains.PaymentService.repository.OrderTransactionRepo;
 import in.binarybrains.PaymentService.repository.UserRepo;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -22,9 +24,10 @@ public class PaymentService {
     @Autowired
     UserRepo userRepo;
 
-    @Autowired
+//    @Autowired
     OrderTransactionRepo orderTransactionRepo;
 
+    @Transactional
     public ApiResponse doPayment(PaymentRequestDTO paymentRequestDTO){
       Optional<User> userOptional =userRepo.findById(paymentRequestDTO.getUserId());
       User user = null;
