@@ -24,8 +24,10 @@ public class PaymentService {
     @Autowired
     UserRepo userRepo;
 
-//    @Autowired
+    @Autowired
     OrderTransactionRepo orderTransactionRepo;
+
+
 
     @Transactional
     public ApiResponse doPayment(PaymentRequestDTO paymentRequestDTO){
@@ -85,12 +87,13 @@ public class PaymentService {
       }
   }catch (Exception e){
       log.error("Exception : {}", e.getMessage());
-      response = ApiResponse.builder()
-              .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-              .message("Error : "+e.getMessage())
-              .result("Failed")
-              .build();
-      return response;
+//      response = ApiResponse.builder()
+//              .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+//              .message("Error : "+e.getMessage())
+//              .result("Failed")
+//              .build();
+//      return response;
+     throw new RuntimeException(e.getMessage());
   }
 
 //        long id = Long.parseLong(""+paymentRequestDTO.getUserId());
