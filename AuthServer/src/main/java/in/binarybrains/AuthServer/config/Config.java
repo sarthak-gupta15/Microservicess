@@ -1,5 +1,7 @@
 package in.binarybrains.AuthServer.config;
 
+import in.binarybrains.AuthServer.service.CustomUserDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -10,16 +12,19 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.client.RestTemplate;
 
 @Configuration
 @EnableWebSecurity
 public class Config {
+// @Configuration load first in any server
+//    customUserDetailsService class was not loaded in the memory
+//    but if we do dependency injection and ask springboot for object it load that class forcefully
+    @Autowired
+    UserDetailsService userDetailsService ;
+//    UserDetailsService userDetailsService = new CustomUserDetailsService();
 
 //    @Bean
 //    RestTemplate getrest(){ // Object store in spring Ioc
@@ -41,35 +46,38 @@ public class Config {
 //        http.csrf(csrfCustomizer); // csrf token disable
         http.csrf((custom) -> custom.disable() );
         http.authorizeHttpRequests(req -> req.anyRequest().authenticated());
-//        http.formLogin(Customizer.withDefaults()); // browser form
+        http.formLogin(Customizer.withDefaults()); // browser form
         http.httpBasic(Customizer.withDefaults()); // postmen form
-        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+//        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         SecurityFilterChain securityFilterChain = http.build();
         return  securityFilterChain;
     }
 
 //    userDeatailAuthenctor filter
+//    @Bean
+//    public UserDetailsService getUserDetailsService(){
+//        UserDetails user1 = User.
+//                withDefaultPasswordEncoder()
+//                .username("pranay")
+//                .password("pranay@123")
+//                .build();
+//        UserDetails user2 = User.
+//                withDefaultPasswordEncoder()
+//                .username("nikhil")
+//                .password("nikhil@123")
+//                .build();
+//
+//        return new InMemoryUserDetailsManager(user1, user2);
+//
+//    }
+
+//    repo = dao
+
     @Bean
-    public UserDetailsService getUserDetailsService(){
-        UserDetails user1 = User.
-                withDefaultPasswordEncoder()
-                .username("pranay")
-                .password("pranay@123")
-                .build();
-        UserDetails user2 = User.
-                withDefaultPasswordEncoder()
-                .username("nikhil")
-                .password("nikhil@123")
-                .build();
-
-        return new InMemoryUserDetailsManager(user1, user2);
-
-    }
-
-    @Bean
-    AuthenticationProvider getAuthProvider(){
-//        Repo = Dao
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(this.getUserDetailsService());
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+        provider.setPasswordEncoder(NoOpPasswordEncoder.getInstance()); // encrip
+//        provider.setUserDetailsService(userDetailsService);
         return provider;
     }
 
