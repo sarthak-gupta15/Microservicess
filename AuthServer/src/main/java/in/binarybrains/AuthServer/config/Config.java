@@ -4,9 +4,11 @@ import in.binarybrains.AuthServer.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
@@ -46,10 +48,15 @@ public class Config {
     public SecurityFilterChain securityFilter(HttpSecurity http){
 //        http.csrf(csrfCustomizer); // csrf token disable
         http.csrf((custom) -> custom.disable() );
-        http.authorizeHttpRequests(req -> req.anyRequest().authenticated());
-        http.formLogin(Customizer.withDefaults()); // browser form
+//        http.authorizeHttpRequests(req -> {
+//            req.requestMatchers("login", "register").permitAll();
+//            req.anyRequest().authenticated();});
+        http.authorizeHttpRequests(req -> req
+                .requestMatchers("/login", "/register").permitAll()
+                .anyRequest().authenticated());
+//        http.formLogin(Customizer.withDefaults()); // browser form
         http.httpBasic(Customizer.withDefaults()); // postmen form
-//        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         SecurityFilterChain securityFilterChain = http.build();
         return  securityFilterChain;
     }
@@ -81,6 +88,11 @@ public class Config {
         provider.setPasswordEncoder(new BCryptPasswordEncoder(12)); // encrip
 //        provider.setUserDetailsService(userDetailsService);
         return provider;
+    }
+
+    @Bean
+    public AuthenticationManager customAuthManager(AuthenticationConfiguration configuration){
+        return configuration.getAuthenticationManager();
     }
 
 
