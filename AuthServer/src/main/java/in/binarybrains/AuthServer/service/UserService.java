@@ -40,7 +40,7 @@ public class UserService {
                 new UsernamePasswordAuthenticationToken(user.getName(), user.getPassword()));
 
         if(auth.isAuthenticated()){
-            return jwtService.genrateToken();
+            return jwtService.genrateToken(user.getName());
         }else {
             return "try again";
         }
