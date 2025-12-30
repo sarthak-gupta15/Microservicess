@@ -1,11 +1,13 @@
 package in.binarybrains.AuthServer.service;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
@@ -19,9 +21,12 @@ public class JWTService {
 
     public String genrateToken(String userName){
         Map<String, Object> claims = new HashMap<>();
+        claims.put("hello", "world");
+        claims.put("role", "user");
 
         return Jwts.builder()
                 .claims()
+                .add(claims)
                 .subject(userName)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis()+60*60*30)) //3 min
@@ -30,8 +35,21 @@ public class JWTService {
                 .compact();
     }
 
-    private Key getKey(){
+    private SecretKey getKey(){
         byte[] keyInBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyInBytes);
+    }
+
+    public String extractUserName(String token){
+//        extract claims (JWts parser claims by using key)
+//        all claims
+        Claims claims = Jwts.parser()
+                .verifyWith(getKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        return claims.getSubject();
+
     }
 }
