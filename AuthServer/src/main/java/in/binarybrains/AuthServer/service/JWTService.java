@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -51,5 +52,22 @@ public class JWTService {
 
         return claims.getSubject();
 
+    }
+
+    public Boolean extractExpireTime(String token){
+//        extract claims (JWts parser claims by using key)
+//        all claims
+        Claims claims = Jwts.parser()
+                .verifyWith(getKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        return !claims.getExpiration().before(new Date());
+
+    }
+
+    public Boolean validateToken(String token, String userName, UserDetails userDetails){
+        return userName.equals(userDetails.getUsername()) &&  extractExpireTime(token);
     }
 }
