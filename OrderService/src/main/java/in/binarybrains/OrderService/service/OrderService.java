@@ -43,6 +43,11 @@ public class OrderService {
                     .address(addressModel)
                     .build();
 
+//            amount using product id from database (table products  )
+//            api call payment
+//            if api call is success then oly we place order
+//            orderservice and paymentservice both as to be running
+
             addressRepo.save(addressModel);
             orderDetailsRepo.save(orderDetailsModel);
 
