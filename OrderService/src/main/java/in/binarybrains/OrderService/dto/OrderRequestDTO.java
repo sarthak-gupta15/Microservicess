@@ -7,6 +7,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class OrderRequestDTO {
     String user_Id;
-    String product_Id;
+    Long product_Id;
     AddressDTO address;
 }

@@ -19,7 +19,8 @@ public class OrderController {
 
     @PostMapping("/place-order")
     ResponseEntity<ApiResponse> placeOrder( @RequestBody OrderRequestDTO orderRequestDTO){
-        ApiResponse response = orderService.placeOrder(orderRequestDTO);
+//        ApiResponse response = orderService.placeOrder(orderRequestDTO);
+        ApiResponse response = orderService.placeOrderWithKafka(orderRequestDTO);
 //        return new ResponseEntity<>(response, HttpStatus.OK);
         return new ResponseEntity<>(response, HttpStatusCode.valueOf(response.getCode()));
 
