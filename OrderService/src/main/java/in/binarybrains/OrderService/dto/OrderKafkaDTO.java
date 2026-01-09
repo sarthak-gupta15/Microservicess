@@ -3,14 +3,12 @@ package in.binarybrains.OrderService.dto;
 import lombok.Builder;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.util.UUID;
 
-@Data
 @Builder
-public class PaymentRequestDTO {
-    long userId;
-    Double amount;
-    String productId;
+@Data
+public class OrderKafkaDTO {
     UUID orderId;
+    String remark;
+    String orderStatus;
 }

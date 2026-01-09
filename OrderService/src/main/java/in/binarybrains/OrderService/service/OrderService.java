@@ -1,9 +1,6 @@
 package in.binarybrains.OrderService.service;
 
-import in.binarybrains.OrderService.dto.AddressDTO;
-import in.binarybrains.OrderService.dto.ApiResponse;
-import in.binarybrains.OrderService.dto.OrderRequestDTO;
-import in.binarybrains.OrderService.dto.PaymentRequestDTO;
+import in.binarybrains.OrderService.dto.*;
 import in.binarybrains.OrderService.model.AddressModel;
 import in.binarybrains.OrderService.model.OrderDetailsModel;
 import in.binarybrains.OrderService.model.ProductModel;
@@ -16,12 +13,14 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -40,7 +39,7 @@ public class OrderService {
     RestTemplate restTemplate;
 
     @Autowired
-    KafkaTemplate kafkaTemplate;
+    KafkaTemplate<String, String> kafkaTemplate;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -137,7 +136,10 @@ public class OrderService {
                     .mob(addressDTO.getMob()).build();
 
 //        OrderDetailsModel orderDetailsModel = new OrderDetailsModel();
+           UUID orderId =  UUID.randomUUID();
+
             OrderDetailsModel orderDetailsModel = OrderDetailsModel.builder()
+                    .orderId(orderId)
                     .user_Id(orderRequestDTO.getUser_Id())
                     .product_Id(orderRequestDTO.getProduct_Id().toString())
                     .address(addressModel)
@@ -154,6 +156,7 @@ public class OrderService {
                 throw new RuntimeException("product not found");
             }
    PaymentRequestDTO paymentRequestDTO =PaymentRequestDTO.builder()
+           .orderId(orderId)
                     .userId(Long.parseLong(orderRequestDTO.getUser_Id()))
                     .productId(orderRequestDTO.getProduct_Id().toString())
                     .amount(amount).build();
@@ -162,6 +165,7 @@ public class OrderService {
 
 //      produce message for kafka so payment service can process the order
             kafkaTemplate.send("order-place", json);
+//            order service -> kafka (order-place) -> paymentservice
 
                 orderDetailsModel.setOrderStatus("Pending");
                 addressRepo.save(addressModel);
@@ -182,4 +186,34 @@ public class OrderService {
             return apiResponse;
         }
     }
+
+    @KafkaListener(topics = "payment-response")
+    public void paymentResponse(String json) {
+        log.info("received the message from kafka for payment status");
+
+        try {
+            OrderKafkaDTO orderDetails =
+                    objectMapper.readValue(json, OrderKafkaDTO.class);
+
+            Optional<OrderDetailsModel> orderOP =
+                    orderDetailsRepo.findById(orderDetails.getOrderId());
+
+            if (orderOP.isPresent()) {
+                OrderDetailsModel order = orderOP.get();
+                order.setRemark(orderDetails.getRemark());
+                order.setOrderStatus(orderDetails.getOrderStatus());
+                orderDetailsRepo.save(order);
+
+                log.info("order payment status updated for orderId={}",
+                        orderDetails.getOrderId());
+            } else {
+                log.warn("order not found for orderId={}",
+                        orderDetails.getOrderId());
+            }
+
+        } catch (Exception e) {
+            log.error("Failed to process payment-response message: {}", json, e);
+        }
+    }
+
 }
