@@ -163,12 +163,6 @@ public class PaymentService {
 
                 }
                 else {
-//                    response = ApiResponse.builder()
-//                            .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-//                            .message("Not Enough Balance")
-//                            .result("Failed")
-//                            .build();
-//                    return response;
                     OrderKafkaDTO orderDetails = OrderKafkaDTO.builder()
                             .orderId(paymentRequestDTO.getOrderId())
                             .remark("Balance Not Enough")
