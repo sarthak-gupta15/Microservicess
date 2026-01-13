@@ -148,7 +148,7 @@ public class PaymentService {
                             .remark("Payment Successfully Processed")
                             .orderStatus("Success").build();
 
-                    String orderDetailsStr = objectMapper.writeValueAsString(orderDetails);
+                    String orderDetailsStr = objectMapper.writeValueAsString(orderDetails); //{}
 
                     sendMessage(orderDetailsStr);
 

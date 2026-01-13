@@ -32,7 +32,6 @@ public class OrderController {
         log.info("request received in api gateway");
         String url = host+port+"/place-order";
         return utils.postApiCall(url, orderRequestDTO);
-
-
     }
+//    postmen -> auth server -> service
 }
