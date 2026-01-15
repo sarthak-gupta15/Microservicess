@@ -2,6 +2,8 @@ package in.binarybrains.AuthServer.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.ColumnDefault;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -28,6 +30,9 @@ public class User {
 
 //    @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal balance;
+
+    @ColumnDefault("USER")
+    private String role;
 
 //    @Column(nullable = false)
     private Boolean isActive;

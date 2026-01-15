@@ -60,6 +60,8 @@ public class Config {
 //            req.anyRequest().authenticated();});
         http.authorizeHttpRequests(req -> req
                 .requestMatchers("/login", "/register").permitAll()
+//                .requestMatchers("/user/**").hasRole("USER")
+                .requestMatchers("/user/get").hasRole("USER")
                 .anyRequest().authenticated());
 //        http.formLogin(Customizer.withDefaults()); // browser form
         http.httpBasic(Customizer.withDefaults()); // postmen form
@@ -109,5 +111,5 @@ public class Config {
         return new RestTemplate();
     }
 
-
+//RBAC
 }

@@ -22,8 +22,8 @@ public class JWTService {
 
     public String genrateToken(String userName){
         Map<String, Object> claims = new HashMap<>();
-        claims.put("hello", "world");
-        claims.put("role", "user");
+//        claims.put("hello", "world");
+//        claims.put("role", "user");
 
         return Jwts.builder()
                 .claims()
