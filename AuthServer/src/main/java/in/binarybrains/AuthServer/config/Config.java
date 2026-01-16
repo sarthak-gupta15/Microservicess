@@ -61,7 +61,8 @@ public class Config {
         http.authorizeHttpRequests(req -> req
                 .requestMatchers("/login", "/register").permitAll()
 //                .requestMatchers("/user/**").hasRole("USER")
-                .requestMatchers("/user/get").hasRole("USER")
+                .requestMatchers("/user/get").hasRole("USER") // ROLE_USER
+                .requestMatchers("/admin").hasRole("ADMIN") // ROLE_ADMIN
                 .anyRequest().authenticated());
 //        http.formLogin(Customizer.withDefaults()); // browser form
         http.httpBasic(Customizer.withDefaults()); // postmen form
